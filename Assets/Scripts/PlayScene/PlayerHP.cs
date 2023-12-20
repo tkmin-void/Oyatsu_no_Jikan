@@ -1,43 +1,50 @@
+using ClearSky;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System;
-using ClearSky;
 
 public class PlayerHP : MonoBehaviour
 {
-    ///-------------------------------
-    public GameObject[] HpObj_origin_inspector;
     private GameObject[] hpObjects;
+    public GameObject[] hpObject_origin;
     public GameObject menuCanvas;
     public GameObject resultCanvas;
 
     AudioSource audioSource;
-    [SerializeField] AudioClip pleaseWaitClip, pleasePlayAgainClip;
+    [SerializeField] AudioClip pleaseWaitClip;
+    [SerializeField] AudioClip pleasePlayAgainClip;
 
+    // 現在のHP
     private int currentHP;
+    // 死亡状態フラグ
     [System.NonSerialized] public bool isDead;
+    // 死亡後のゲーム一時停止状態
     [System.NonSerialized] public bool isPaused = false;
+    // 二重入力防止用
     bool isInputEnabled;
+
     void Start()
     {
         isInputEnabled = true;
         audioSource = GetComponent<AudioSource>();
 
-        // 現在HP初期化　初期値３
-        currentHP = HpObj_origin_inspector.Length;
-        /*
-         currentHPが0になったとき、HpObj_origin[-1]を参照しようとしてエラーになる
-         ↓　それを回避するためにInstantiateしたオブジェクトを別の配列に保存する
-         */
+        // 現在HP初期化、インスペクターから設定
+        currentHP = hpObject_origin.Length;
+
+        /* currentHPが0になったとき、hpObject_origin[-1]を参照しようとしてエラーになる
+         ↓　それを回避するためにInstantiateしたオブジェクトを別の配列に保存する */
+
         hpObjects = new GameObject[currentHP];
 
         // クリアもしくは死んだ時に出るメニューキャンバス
         for (int i = 0; i <= currentHP - 1; ++i)
         {
+            hpObjects[i] =
 
-            hpObjects[i] = Instantiate(HpObj_origin_inspector[i],
-            new Vector3(transform.position.x + (i * 1),
-            transform.position.y, transform.position.z),
+            Instantiate(hpObject_origin[i], // 生成
+            new Vector3(
+            transform.position.x + (i * 1),
+            transform.position.y,
+            transform.position.z),
             Quaternion.identity);
 
             // HPオブジェクト表示
@@ -75,26 +82,27 @@ public class PlayerHP : MonoBehaviour
 
     public void DecreasePlayerHP()
     {
-        // ↓これはInstantiateしたオブジェクトではなく元のプレハブに対してSetActiveしているため無効
-        //HpObj_origin[currentHP].SetActive(false);　
-        //Instantiateしたオブジェクトを操作するなら変数に代入しなければならない
+        /* ↓これはInstantiateしたオブジェクトではなく元のプレハブに対してSetActiveしているため無効
+           hpObject_origin[currentHP].SetActive(false);　
+         Instantiateしたオブジェクトを操作するなら変数に代入しなければならない 
+             ※ Start関数内の　 hpObjects = new GameObject[currentHP];   */
 
-        currentHP--;        // プレイヤーHP -1
+        currentHP--;  // HP -1
 
         hpObjects[currentHP].SetActive(false);
-        // インデックスの関係で0ではなく1を設定（よくない）
-        isDead = currentHP <= 0 ? true : false;  //  HPが１より少なくなったら true
+        isDead = currentHP < 1 ? true : false;  //  HPが１より少なくなったら true
 
         if (isDead)
         {
-            PlayerController p = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-            p.Die();
+            var player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+            player.Die();
 
-            EnemyController e = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyController>();
-            e.Idle();
+            var enemy = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyController>();
+            enemy.Idle();
 
             // ２秒後にMenuとResultを表示
-            Invoke("GameOver", 2f); Invoke("ShowResult", 2f);
+            Invoke("GameOver", 2f); 
+            Invoke("ShowResult", 2f);
 
             isPaused = true;
         }
@@ -115,14 +123,13 @@ public class PlayerHP : MonoBehaviour
 
     private void ShowResult()
     {
-
         // リザルトキャンバス表示（スコア、ハイスコア）
         resultCanvas.SetActive(true);
 
         // 死亡したタイミングでリザルトスコアを更新
-        ScoreManager s = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
+        var score = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
 
-        s.Update_ResultScore_HighScore();
+        score.OverwriteHighScore();
         //  リトライフラグON
         isPaused = true;
     }

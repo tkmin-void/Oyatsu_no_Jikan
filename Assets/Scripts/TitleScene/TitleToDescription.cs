@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public class TitleToDescription : MonoBehaviour
 {
     AudioSource audioSource;
     [SerializeField] AudioClip startClip, endClip;
 
-    bool isInputEnabled;
+    bool isInputEnabled;  // 二重入力防止用
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -40,11 +42,13 @@ public class TitleToDescription : MonoBehaviour
 
     public void EndGame()
     {
+        // ゲーム終了
         UnityEditor.EditorApplication.isPlaying = false;
     }
 
     public void MoveToDescriptionScene()
-    {
+    {   
+        // チュートリアルへ飛ぶ
         SceneManager.LoadScene("Description");
     }
 }

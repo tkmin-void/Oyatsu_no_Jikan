@@ -31,6 +31,7 @@ public class DescriptionManagement : MonoBehaviour
                 {
                     if (canvas_page1.activeSelf)
                     {
+                        // １ページ目を非表示にして２ページ目を表示
                         canvas_page1.SetActive(false);
                         canvas_page2.SetActive(true);
                     }
@@ -44,6 +45,7 @@ public class DescriptionManagement : MonoBehaviour
                     audioSource.clip = askReadyClip;
                     audioSource.Play();
 
+                    // ２．５秒後にゲーム開始
                     isInputEnabled = false;
                     Invoke("MoveToPlayScene", 2.5f);
                 }
@@ -53,7 +55,6 @@ public class DescriptionManagement : MonoBehaviour
 
     void MoveToPlayScene()
     {
-
         SceneManager.LoadScene("Play");
     }
 }

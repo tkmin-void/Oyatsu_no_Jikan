@@ -5,8 +5,10 @@ public class CountDownAtFirst : MonoBehaviour
     AudioSource audioSource;
     [SerializeField] private AudioClip readyClip, goClip;
     [SerializeField] private GameObject BGM_source;
-    public bool startGame = false;
-    float countDown = 2.5f;  //　ゲームカウントダウン
+
+    [System.NonSerialized]  public bool startGame = false;
+    //　ゲームカウントダウン
+    float countDown = 2.5f; 
 
     private void Awake()
     {
@@ -28,7 +30,6 @@ public class CountDownAtFirst : MonoBehaviour
             if (countDown <= 0)
             {
                 startGame = true;
-                //PlayGo();
                 Invoke("PlayGo", 0.1f);
 
                 // BGMスタート
@@ -38,7 +39,7 @@ public class CountDownAtFirst : MonoBehaviour
         // カウントダウンがまだ終わっていなければ　2.5秒にリセット
         else if (countDown <= 2.5f)
         {
-            countDown = 3.5f;
+            countDown = 2.5f;
         }
     }
 

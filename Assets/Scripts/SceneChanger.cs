@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneChanger : MonoBehaviour
 {
-
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.S))

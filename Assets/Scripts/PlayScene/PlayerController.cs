@@ -1,24 +1,33 @@
-﻿using ClearSky;
-using UnityEngine;
+﻿using UnityEngine;
+
+
 
 public class PlayerController : MonoBehaviour
 {
     private CountDownAtFirst countDown;
     private AudioSource audioSource;
-    private Animator anim;
+    private Animator animator;
     private Rigidbody2D rb2d;
     private ScoreManager scoreManager;
-    private PlayerController player;
-    // プレイヤーHPを取得
-    private PlayerHP p;
+    private PlayerController controller;
+    private PlayerHP hp;
 
-    public AudioClip getItemClip, getDamageClip, getHealClip, jumpSEClip;
+    public AudioClip getItemClip;
+    public AudioClip getDamageClip;
+    public AudioClip getHealClip;
+    public AudioClip jumpSEClip;
 
     // Member--------------------------
+
+    // プレイヤーのサイズ
     float playerLocalScale = 0.6f;
+    // プレイヤーの走る速度
     [System.NonSerialized] public float runSpeed;
+    // プレイヤーのジャンプ力
     int jumpPower = 8;
+    // ハイスコアのハッシュ
     string highScoreHash = "highScore";
+    // 着地判定
     [System.NonSerialized] public bool isGrounded;
 
 
@@ -38,78 +47,71 @@ public class PlayerController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         countDown = GameObject.Find("CountDown").GetComponent<CountDownAtFirst>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        anim = GameObject.FindGameObjectWithTag("Player").GetComponent<Animator>();
+        controller = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        animator = GameObject.FindGameObjectWithTag("Player").GetComponent<Animator>();
         rb2d = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody2D>();
         scoreManager = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
-        p = GameObject.Find("PlayerHP").GetComponent<PlayerHP>();
+        hp = GameObject.Find("PlayerHP").GetComponent<PlayerHP>();
     }
 
 
-    void Update()
+    private void ConstraintMovableArea_X()
     {
         // 移動範囲制御＿X軸（ステージから落ちないように）
-        if (player.transform.localPosition.x < -9.0f)
+        if (controller.transform.localPosition.x < -9.0f)
         {
-            player.transform.localPosition = new Vector3(-9.0f, -5.0f, 0);
+            controller.transform.localPosition = new Vector3(-9.0f, -5.0f, 0);
         }
-        else if (player.transform.localPosition.x > 8.8f)
+        else if (controller.transform.localPosition.x > 8.8f)
         {
-            player.transform.localPosition = new Vector3(8.8f, -5.0f, 0);
-        }
-        //-------------------------------------------------------------------
-
-
-        if (!countDown.startGame) return;  // カウントダウン
-        if (p.isDead) return;      // GameOverの時
-        if (p.isPaused) return;
-
-
-
-        float x = Input.GetAxis("Horizontal");
-        if (x == 0)
-        {
-            direction = DIRECTION.STOP;
-        }
-        if (x > 0)
-        {
-            direction = DIRECTION.RIGHT;
-        }
-        if (x < 0)
-        {
-            direction = DIRECTION.LEFT;
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-
-            Jump();
-            audioSource.clip = jumpSEClip;
-            audioSource.Play();
+            controller.transform.localPosition = new Vector3(8.8f, -5.0f, 0);
         }
     }
+
+    private void ApplyForce_Player_X()
+    {
+        float x = Input.GetAxis("Horizontal");
+
+        if (x == 0) direction = DIRECTION.STOP;
+        if (x > 0) direction = DIRECTION.RIGHT;
+        if (x < 0) direction = DIRECTION.LEFT;
+    }
+
+
+    private void Update()
+    {
+        if (!countDown.startGame) return;  // カウントダウン
+        if (hp.isDead) return; // GameOverの時        
+
+        // プレイヤーの移動範囲制御
+        ConstraintMovableArea_X();
+
+        // スペースキーでジャンプ
+        if (Input.GetKeyDown(KeyCode.Space)) Jump();
+    }
+
 
     private void FixedUpdate()
     {
         if (!countDown.startGame) return;  // カウントダウン
-        if (p.isDead) return;　// GameOverの時        
-        if (p.isPaused) return;
+        if (hp.isDead) return; // GameOverの時
 
+        // プレイヤーのX軸方向の移動
+        ApplyForce_Player_X();
 
         switch (direction)
         {
             case DIRECTION.STOP:
                 runSpeed = 0;
-                anim.SetBool("isRun", false);
+                animator.SetBool("isRun", false);
                 break;
             case DIRECTION.RIGHT:
-                anim.SetBool("isRun", true);
+                animator.SetBool("isRun", true);
                 transform.localScale = new Vector3(playerLocalScale, playerLocalScale, playerLocalScale);
                 runSpeed = 5;
                 break;
             case DIRECTION.LEFT:
-                anim.SetBool("isRun", true);
+                animator.SetBool("isRun", true);
                 transform.localScale = new Vector3(-playerLocalScale, playerLocalScale, playerLocalScale);
                 runSpeed = -5;
                 break;
@@ -119,13 +121,13 @@ public class PlayerController : MonoBehaviour
 
     public void Idle()
     {
-        anim.SetTrigger("idle");
+        animator.SetTrigger("idle");
     }
-  
+
 
     public void Hurt()
     {
-        anim.SetTrigger("hurt");
+        animator.SetTrigger("hurt");
 
         if (playerLocalScale == 0.6f)
             rb2d.AddForce(new Vector2(-5f, 1f), ForceMode2D.Impulse);
@@ -138,31 +140,31 @@ public class PlayerController : MonoBehaviour
         runSpeed = 0;
         rb2d.velocity = Vector2.zero;
         rb2d.angularVelocity = 0f;
-        anim.SetTrigger("die");
+        animator.SetTrigger("die");
     }
 
     public void Run()
     {
-        if (!anim.GetBool("isRun"))
-        {
-            anim.SetBool("isRun", true);
-        }
-        else
-        {
-            anim.SetBool("isRun", false);
-        }
+        if (!animator.GetBool("isRun"))  
+            animator.SetBool("isRun", true);
+        else                             
+            animator.SetBool("isRun", false);
     }
+
     public void Jump()
     {
-        if (!anim.GetBool("isJump"))
+        if (!animator.GetBool("isJump"))
         {
-            anim.SetBool("isJump", true);
+            animator.SetBool("isJump", true);
             rb2d.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+            audioSource.clip = jumpSEClip;
+            audioSource.Play();
         }
         else
         {
-            anim.SetBool("isJump", false);
+            animator.SetBool("isJump", false);
         }
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -177,10 +179,11 @@ public class PlayerController : MonoBehaviour
             audioSource.Play();
         }
 
+
         // プレイヤーがダメージアイテムに衝突
         if (collision.gameObject.tag == "DamageItem")
         {
-            p.DecreasePlayerHP();
+            hp.DecreasePlayerHP();
 
             Destroy(collision.gameObject);
             // スコア減点
@@ -195,23 +198,23 @@ public class PlayerController : MonoBehaviour
         // プレイヤーが回復アイテムに衝突
         if (collision.gameObject.tag == "HealItem")
         {
-
             Destroy(collision.gameObject);
 
-            p.PlusHP();
+            hp.PlusHP();
             audioSource.clip = getHealClip;
             audioSource.Play();
         }
 
 
-        anim.SetBool("isJump", false);
-
-        // 地面に接触中なら
+        // 地面に接触後
         if (collision.gameObject.CompareTag("Stage"))
         {
             // 1秒後にジャンプ入力可能
-            Invoke("EnableJump", 1f);
+            Invoke("EnableJump", 1.5f);
         }
+
+        // ジャンプアニメーションはすぐ戻す
+        animator.SetBool("isJump", false);
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -219,12 +222,10 @@ public class PlayerController : MonoBehaviour
         // 地面から離れたら
         if (collision.gameObject.CompareTag("Stage"))
         {
-            // 空中にいるとする
             isGrounded = false;
         }
     }
 
-    // ジャンプ入力を有効化するメソッド
     private void EnableJump()
     {
         // 地面に着地中とする

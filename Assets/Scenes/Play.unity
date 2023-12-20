@@ -612,7 +612,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8853461538655865707, guid: 904d0b8c28276a64c8101ddedd894d57, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5
+      value: -4.07
       objectReference: {fileID: 0}
     - target: {fileID: 8853461538655865707, guid: 904d0b8c28276a64c8101ddedd894d57, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1087,7 +1087,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cfb6e4c9e7a216428b623780c67ae8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HpObj_origin_inspector:
+  hpObject_origin:
   - {fileID: 5599802622322075442, guid: 8f55805313d01cc458f92c55c1e45e73, type: 3}
   - {fileID: 5599802622322075442, guid: 8f55805313d01cc458f92c55c1e45e73, type: 3}
   - {fileID: 5599802622322075442, guid: 8f55805313d01cc458f92c55c1e45e73, type: 3}
@@ -1223,7 +1223,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea666dbed4d4fb04980c076ea88aafc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stage: {fileID: 1594694282}
   scoreItems:
   - {fileID: 2628462540386672395, guid: be72cca64fae6f749a193c4999583192, type: 3}
   - {fileID: 5170910580307664311, guid: ec1fc16df55246442a6d0282dff878b7, type: 3}
@@ -1396,7 +1395,6 @@ MonoBehaviour:
   readyClip: {fileID: 8300000, guid: 97bc9a8227826ee44a3be839f9983b07, type: 3}
   goClip: {fileID: 8300000, guid: c33e35321f5c7ad4f8455e4673ebdb3f, type: 3}
   BGM_source: {fileID: 869176423}
-  startGame: 0
 --- !u!4 &892573154
 Transform:
   m_ObjectHideFlags: 0
